@@ -1,6 +1,17 @@
 const fs = require('fs');
 class TFTheOne{
-read_file(path_to_file) {
+private value;
+constructor(v){
+    this.value = v;
+}
+bind(func:Function){
+  this.value = func(this.value);
+  return this;
+}
+printme():void{
+    console.log(this.value);
+}
+read_file(path_to_file:string) {
     let readFile = fs.readFileSync(path_to_file, 'utf8');
     return readFile;
 }
@@ -11,14 +22,14 @@ filter_chars(str_data) {
     str_data = str_data.split(' ').join(',');
     return str_data;
 }
-normalize(str_data){
+normalize(str_data:string){
     return str_data.toLowerCase();
 }
-scan(str_data) {
+scan(str_data:string[]) {
     let a = str_data.toString().split(/\r?\n/);
     return a;
 }
-remove_stop_words(word_lis) {
+remove_stop_words(word_lis:string[]) {
     let read_file = fs.readFileSync('stop_words.txt', 'utf8');
     let stop_words = read_file.split(',')
     let newArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
@@ -34,7 +45,7 @@ remove_stop_words(word_lis) {
     list = list.toString().split(',')
     return list;
 }
-frequencies(word_list) {
+frequencies(word_list:string[]) {
     let word_freq = {};
     for (let w of word_list) {
         if (w in word_freq) {
@@ -46,7 +57,7 @@ frequencies(word_list) {
     }
     return word_freq;
 }
-sort(word_freq){
+sort(word_freq:object){
     let sortable=[];
 	for(let key in word_freq)
 		if(word_freq.hasOwnProperty(key))
@@ -57,14 +68,15 @@ sort(word_freq){
 	});
 	return sortable;
 }
-print_all(word_freq) {
-    
+print_all(word_freq:string[]) {
+    let top = "";
     if (word_freq.length > 0) {
         for(let w in word_freq){
-            console.log(word_freq[w])
+           top = top + word_freq[w] + "\n";
         }
     }
+    return top;
 }
 }
-let a=new TFTheOne();
-a.print_all(a.sort(a.frequencies(a.remove_stop_words(a.scan(a.normalize(a.filter_chars(a.read_file('a.txt'))))))))
+let a= new TFTheOne('a.txt');
+a.bind(a.read_file).bind(a.filter_chars).bind(a.normalize).bind(a.scan).bind(a.remove_stop_words).bind(a.frequencies).bind(a.sort).bind(a.print_all).printme();
