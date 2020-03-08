@@ -1,83 +1,83 @@
-const fs = require('fs');
+const fileSystem = require('fs');
 const assert = require('assert');
-function extract_words(path_to_file: string) {
-    assert(typeof path_to_file === "string", 'I need a string!');
-    assert(path_to_file, 'I need a non-empty string!');
-    let str_data;
+function extractWords(pathToFile: string) {
+    assert(typeof pathToFile === "string", 'I need a string!');
+    assert(pathToFile, 'I need a non-empty string!');
+    let strData;
     try {
-        str_data = fs.readFileSync(path_to_file, 'utf8');
+        strData = fileSystem.readFileSync(pathToFile, 'utf8');
     }
     catch (err) {
-        console.log(err);
+        throw err;
     }
-    let pattern = str_data;
+    let pattern = strData;
     pattern = pattern.split('[\W_]+').toString().toLowerCase();
-    str_data = pattern.split(' ').join(',').toString().split(/\r?\n/);
-    return str_data;
+    strData = pattern.split(' ').join(',').toString().split(/\r?\n/);
+    return strData;
 }
-function remove_stop_words(word_list) {
-    assert(typeof word_list === "object", 'I need a list!');
+function removeStopWords(wordList) {
+    assert(typeof wordList === "object", 'I need a list!');
 
-    let stop_words: string[] = [];
+    let stopWords: string[] = [];
 
     try {
-        let read_file = fs.readFileSync('stop_words.txt', 'utf8');
-        stop_words = read_file.split(',');
+        let read_file = fileSystem.readFileSync('stop_words.txt', 'utf8');
+        stopWords = read_file.split(',');
     }
     catch (err) {
-        console.log(err);
+        throw err;
     }
     let newArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
     for (let j = 0; j < newArray.length; j++) {
-        stop_words.push(newArray[j]);
+        stopWords.push(newArray[j]);
     }
     let list = [];
-    for (let w of word_list) {
-        if (!(stop_words.indexOf(w) > -1)) {
+    for (let w of wordList) {
+        if (!(stopWords.indexOf(w) > -1)) {
             list.push(w);
         }
     }
     return list.toString().split(',');
 }
-function frequencies(word_list) {
-    assert(typeof word_list === "object", 'I need a list!');
-    assert(word_list != [], "I need a non-empty list!");
-    let word_freqs: object = {};
-    for (let w of word_list) {
-        if (w in word_freqs) {
-            word_freqs[w] += 1;
+function frequencies(wordList) {
+    assert(typeof wordList === "object", 'I need a list!');
+    assert(wordList != [], "I need a non-empty list!");
+    let wordFreqs: object = {};
+    for (let w of wordList) {
+        if (w in wordFreqs) {
+            wordFreqs[w] += 1;
         }
         else {
-            word_freqs[w] = 1;
+            wordFreqs[w] = 1;
         }
     }
-    return word_freqs;
+    return wordFreqs;
 }
-function sort(word_freqs) {
-    assert(typeof word_freqs === 'object', "I need a object!");
-    assert(word_freqs != {}, "I need a non-empty object!");
-    let sortable = [];
+function sort(wordFreqs) {
+    assert(typeof wordFreqs === 'object', "I need a object!");
+    assert(wordFreqs != {}, "I need a non-empty object!");
+    let sortAble = [];
     try {
-        for (let key in word_freqs)
-            if (word_freqs.hasOwnProperty(key))
-                sortable.push([key, word_freqs[key]]);
-        sortable.sort(function (a, b) {
+        for (let key in wordFreqs)
+            if (wordFreqs.hasOwnProperty(key))
+                sortAble.push([key, wordFreqs[key]]);
+        sortAble.sort(function (a, b) {
             return b[1] - a[1];
         });
-        return sortable;
+        return sortAble;
     }
     catch (err) {
-        console.log(err);
+        throw err;
     }
 }
 try {
     assert('a.txt'.length > 1, 'You idiot! I need an input file!');
-    let word_freqs = sort(frequencies(remove_stop_words(extract_words('a.txt'))));
-    assert(typeof word_freqs === 'object', "OMG! This is not a list!");
-    assert(word_freqs.length > 0, "Empty List");
-    for (let w in word_freqs) {
-        console.log(word_freqs[w]);
+    let wordFreqs = sort(frequencies(removeStopWords(extractWords('a.txt'))));
+    assert(typeof wordFreqs === 'object', "OMG! This is not a list!");
+    assert(wordFreqs.length > 0, "Empty List");
+    for (let w in wordFreqs) {
+        console.log(wordFreqs[w]);
     }
 } catch (error) {
-    console.log(error)
+    throw error;
 }
