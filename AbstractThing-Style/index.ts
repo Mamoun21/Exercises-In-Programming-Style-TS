@@ -1,24 +1,24 @@
-const fs = require('fs');
+const fileSystem = require('fs');
 interface IDataStorage{
     words():string[];
 }
 interface IStopWordFilter{
-    is_stop_word(word):string;
+    isStopWord(word):string;
 }
 interface IWordFrequencyCounter{
-    increment_count(word):void;
+    incrementCount(word):void;
     sorted():Object;
 }
 class DataStorageManager implements IDataStorage{
     private data:string[];
-    constructor(path_to_file) {
+    constructor(pathToFile) {
         this.data = [];
-        let str_data = fs.readFileSync(path_to_file, 'utf8');
-        let pattern = str_data;
+        let strData = fileSystem.readFileSync(pathToFile, 'utf8');
+        let pattern = strData;
         pattern = pattern.split('[\W_]+');
-        str_data = pattern.toString().toLowerCase();
-        str_data = str_data.split(' ').join(',');
-        this.data = str_data;
+        strData = pattern.toString().toLowerCase();
+        strData = strData.split(' ').join(',');
+        this.data = strData;
     }
     words():string[]{
         let w = this.data.toString().split(/\r?\n/);
@@ -27,65 +27,65 @@ class DataStorageManager implements IDataStorage{
     }
 }
 class StopWordManager implements IStopWordFilter {
-    private stop_words : string[];
+    private stopWords : string[];
     constructor() {
-        let read_file = fs.readFileSync('stop_words.txt', 'utf8');
-        this.stop_words = read_file.split(',')
+        let readFile = fileSystem.readFileSync('stop_words.txt', 'utf8');
+        this.stopWords = readFile.split(',')
         let newArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         for (let j = 0; j < newArray.length; j++) {
-            this.stop_words.push(newArray[j]);
+            this.stopWords.push(newArray[j]);
         }
     }
-    is_stop_word(word):string{
-        if (this.stop_words.indexOf(word) > -1) {
+    isStopWord(word):string{
+        if (this.stopWords.indexOf(word) > -1) {
             return word;
         }
     }
 }
 class WordFrequencyManager implements IWordFrequencyCounter{
-    private word_freqs: Object;
+    private wordFreqs: Object;
     constructor() {
-        this.word_freqs = {};
+        this.wordFreqs = {};
     }
-    increment_count(word):void {
-        if (word in this.word_freqs) {
-            this.word_freqs[word] += 1;
+    incrementCount(word):void {
+        if (word in this.wordFreqs) {
+            this.wordFreqs[word] += 1;
         }
         else {
-            this.word_freqs[word] = 1;
+            this.wordFreqs[word] = 1;
         }
     }
     sorted():Object {
-        let sortable = [];
-        for (let key in this.word_freqs)
-            if (this.word_freqs.hasOwnProperty(key))
-                sortable.push([key, this.word_freqs[key]]);
-        sortable.sort(function (a, b) {
+        let sorTable = [];
+        for (let key in this.wordFreqs)
+            if (this.wordFreqs.hasOwnProperty(key))
+                sorTable.push([key, this.wordFreqs[key]]);
+        sorTable.sort(function (a, b) {
             return b[1] - a[1];
         });
-        this.word_freqs = sortable;
-        return this.word_freqs;
+        this.wordFreqs = sorTable;
+        return this.wordFreqs;
     }
 }
 class WordFrequencyController {
-    private storage_manager:IDataStorage;
-    private stop_word_manager:IStopWordFilter;
-    private word_freq_manager:IWordFrequencyCounter;
-    private word_freqs:Object;
-    constructor(path_to_file) {
-        this.storage_manager = new DataStorageManager(path_to_file);
-        this.stop_word_manager = new StopWordManager();
-        this.word_freq_manager = new WordFrequencyManager();
+    private storageManager:IDataStorage;
+    private stopWordManager:IStopWordFilter;
+    private wordFreqManager:IWordFrequencyCounter;
+    private wordFreqs:Object;
+    constructor(pathToFile) {
+        this.storageManager = new DataStorageManager(pathToFile);
+        this.stopWordManager = new StopWordManager();
+        this.wordFreqManager = new WordFrequencyManager();
     }
     run():void {
-        for (let w of this.storage_manager.words()) {
-            if (!this.stop_word_manager.is_stop_word(w)) {
-                this.word_freq_manager.increment_count(w);
+        for (let w of this.storageManager.words()) {
+            if (!this.stopWordManager.isStopWord(w)) {
+                this.wordFreqManager.incrementCount(w);
             }
         }
-        this.word_freqs = this.word_freq_manager.sorted();
-        for (let w in this.word_freqs) {
-            console.log(this.word_freqs[w])
+        this.wordFreqs = this.wordFreqManager.sorted();
+        for (let w in this.wordFreqs) {
+            console.log(this.wordFreqs[w])
         }
 
     }
