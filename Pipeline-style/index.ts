@@ -1,63 +1,63 @@
-const fs = require('fs');
-function read_file(path_to_file) {
-    let readFile = fs.readFileSync(path_to_file, 'utf8');
-    return readFile;
+const fileSystem = require('fs');
+function readFile(pathToFile) {
+    let read = fileSystem.readFileSync(pathToFile, 'utf8');
+    return read;
 }
-function filter_chars_and_normalize(str_data) {
-    let pattern = str_data;
+function filterCharsAndNormalize(strData) {
+    let pattern = strData;
     pattern = pattern.split('[\W_]+');
-    str_data = pattern.toString().toLowerCase();
-    str_data = str_data.split(' ').join(',');
-    return str_data;
+    strData = pattern.toString().toLowerCase();
+    strData = strData.split(' ').join(',');
+    return strData;
 }
-function scan(str_data) {
-    let a = str_data.toString().split(/\r?\n/);
+function scan(strData) {
+    let a = strData.toString().split(/\r?\n/);
     return a;
 }
-function remove_stop_words(word_lis) {
-    let read_file = fs.readFileSync('stop_words.txt', 'utf8');
-    let stop_words = read_file.split(',')
+function removeStopWords(wordList) {
+    let read = fileSystem.readFileSync('stop_words.txt', 'utf8');
+    let stopWords = read.split(',')
     let newArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
     for (let j = 0; j < newArray.length; j++) {
-        stop_words.push(newArray[j]);
+        stopWords.push(newArray[j]);
     }
     let list = [];
-    for (let w of word_lis) {
-        if (!(stop_words.indexOf(w) > -1)) {
+    for (let w of wordList) {
+        if (!(stopWords.indexOf(w) > -1)) {
             list.push(w);
         }
     }
     list = list.toString().split(',')
     return list;
 }
-function frequencies(word_list) {
-    let word_freq = {};
-    for (let w of word_list) {
-        if (w in word_freq) {
-            word_freq[w] += 1;
+function frequencies(wordList) {
+    let wordFreqs = {};
+    for (let w of wordList) {
+        if (w in wordFreqs) {
+            wordFreqs[w] += 1;
         }
         else {
-            word_freq[w] = 1;
+            wordFreqs[w] = 1;
         }
     }
-    return word_freq;
+    return wordFreqs;
 }
-function sort(word_freq){
-    let sortable=[];
-	for(let key in word_freq)
-		if(word_freq.hasOwnProperty(key))
-			sortable.push([key, word_freq[key]]);
-	sortable.sort(function(a, b)
+function sort(wordFreqs){
+    let sorTable=[];
+	for(let key in wordFreqs)
+		if(wordFreqs.hasOwnProperty(key))
+			sorTable.push([key, wordFreqs[key]]);
+	sorTable.sort(function(a, b)
 	{
 	  return b[1]-a[1]; 
 	});
-	return sortable;
+	return sorTable;
 }
-function print_all(word_freq) {
-    if (word_freq.length > 0) {
-        for(let w in word_freq){
-            console.log(word_freq[w]);
+function printAll(wordFreqs) {
+    if (wordFreqs.length > 0) {
+        for(let w in wordFreqs){
+            console.log(wordFreqs[w]);
         }
     }
 }
-print_all(sort(frequencies(remove_stop_words(scan(filter_chars_and_normalize(read_file('a.txt')))))));
+printAll(sort(frequencies(removeStopWords(scan(filterCharsAndNormalize(readFile('a.txt')))))));
