@@ -1,61 +1,61 @@
-const fs = require('fs');
+const fileSystem = require('fs');
 const lineByLine = require('n-readlines');
-let word_freq = [];
-const readFile = fs.readFileSync('stopWord.txt', 'utf8');
-let stop_words= readFile.split(',');
+let wordFreq = [];
+const readFile = fileSystem.readFileSync('stopWord.txt', 'utf8');
+let stopWords= readFile.split(',');
 let newArray=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 for(let j = 0 ;j<newArray.length;j++)
 {
-    stop_words.push(newArray[j]);
+    stopWords.push(newArray[j]);
 }
 const liner = new lineByLine('example.txt');
 let line;
 while (line = liner.next()) {
     line=line.toString();
-    let star_char = null;
+    let starChar = null;
     let i = 0;
     for (let c of line) {
-        if (star_char == null) {
+        if (starChar == null) {
             if ("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(c) > -1) {
-                star_char = i;
+                starChar = i;
             }
         }
         else {
             if (!("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(c) > -1)) {
                 let found = false;
-                let word = line.slice(star_char, i).toLowerCase();
-                if (!(stop_words.indexOf(word)>-1)) {
-                    let pair_index = 0;
-                    for (let pair of word_freq) {
+                let word = line.slice(starChar, i).toLowerCase();
+                if (!(stopWords.indexOf(word)>-1)) {
+                    let pairIndex = 0;
+                    for (let pair of wordFreq) {
                         if (word == pair[0]) {
                             pair[1] += 1;
                             found = true;
                             break;
                         }
-                        pair_index += 1;
+                        pairIndex += 1;
                     }
                     if (!found) {
-                        word_freq.push([word, 1]);
+                        wordFreq.push([word, 1]);
                        
                     }
-                    else if (word_freq.length > 1) {
-                        for (let n = pair_index; n>0; n--) {
-                            if (word_freq[pair_index][1] > word_freq[n][1]) {
-                                word_freq[n], word_freq[pair_index] = word_freq[pair_index], word_freq[n];
-                                pair_index = n;
+                    else if (wordFreq.length > 1) {
+                        for (let n = pairIndex; n>0; n--) {
+                            if (wordFreq[pairIndex][1] > wordFreq[n][1]) {
+                                wordFreq[n], wordFreq[pairIndex] = wordFreq[pairIndex], wordFreq[n];
+                                pairIndex = n;
 
                             }
                         }
                     }
                 }
-                star_char = null;
+                starChar = null;
             }
         }
         i+=1;
     }
 }
-console.log("The frequency of words:");
-for (let tf = 0 ; tf<word_freq.length ;tf++){
-    console.log(word_freq[tf]);
+console.log("The Frequency Of Words:");
+for (let t = 0 ; t<wordFreq.length ;t++){
+    console.log(wordFreq[t]);
     
 }
