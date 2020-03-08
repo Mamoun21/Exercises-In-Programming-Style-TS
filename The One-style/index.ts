@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fileSystem = require('fs');
 class TFTheOne{
 private value;
 constructor(v){
@@ -11,72 +11,72 @@ bind(func:Function){
 printme():void{
     console.log(this.value);
 }
-read_file(path_to_file:string) {
-    let readFile = fs.readFileSync(path_to_file, 'utf8');
-    return readFile;
+readFile(pathToFile:string) {
+    let read = fileSystem.readFileSync(pathToFile, 'utf8');
+    return read;
 }
-filter_chars(str_data) {
-    let pattern = str_data;
+filterChars(strData) {
+    let pattern = strData;
     pattern = pattern.split('[\W_]+');
-    str_data = pattern.toString();
-    str_data = str_data.split(' ').join(',');
-    return str_data;
+    strData = pattern.toString();
+    strData = strData.split(' ').join(',');
+    return strData;
 }
-normalize(str_data:string){
-    return str_data.toLowerCase();
+normalize(strData:string){
+    return strData.toLowerCase();
 }
-scan(str_data:string[]) {
-    let a = str_data.toString().split(/\r?\n/);
+scan(strData:string[]) {
+    let a = strData.toString().split(/\r?\n/);
     return a;
 }
-remove_stop_words(word_lis:string[]) {
-    let read_file = fs.readFileSync('stop_words.txt', 'utf8');
-    let stop_words = read_file.split(',')
+removeStopWords(word_lis:string[]) {
+    let read = fileSystem.readFileSync('stop_words.txt', 'utf8');
+    let stopWords = read.split(',')
     let newArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
     for (let j = 0; j < newArray.length; j++) {
-        stop_words.push(newArray[j]);
+        stopWords.push(newArray[j]);
     }
     let list = [];
     for (let w of word_lis) {
-        if (!(stop_words.indexOf(w) > -1)) {
+        if (!(stopWords.indexOf(w) > -1)) {
             list.push(w);
         }
     }
     list = list.toString().split(',')
     return list;
 }
-frequencies(word_list:string[]) {
-    let word_freq = {};
-    for (let w of word_list) {
-        if (w in word_freq) {
-            word_freq[w] += 1;
+frequencies(wordList:string[]) {
+    let wordFreq :object = {};
+    for (let w of wordList) {
+        if (w in wordFreq) {
+            wordFreq[w] += 1;
         }
         else {
-            word_freq[w] = 1;
+            wordFreq[w] = 1;
         }
     }
-    return word_freq;
+    return wordFreq;
 }
-sort(word_freq:object){
-    let sortable=[];
-	for(let key in word_freq)
-		if(word_freq.hasOwnProperty(key))
-			sortable.push([key, word_freq[key]]);
-	sortable.sort(function(a, b)
+sort(wordFreq:object){
+    let sorTable=[];
+	for(let key in wordFreq)
+		if(wordFreq.hasOwnProperty(key))
+			sorTable.push([key, wordFreq[key]]);
+	sorTable.sort(function(a, b)
 	{
 	  return b[1]-a[1]; 
 	});
-	return sortable;
+	return sorTable;
 }
-print_all(word_freq:string[]) {
+printAll(wordFreq:string[]) {
     let top = "";
-    if (word_freq.length > 0) {
-        for(let w in word_freq){
-           top = top + word_freq[w] + "\n";
+    if (wordFreq.length > 0) {
+        for(let w in wordFreq){
+           top = top + wordFreq[w] + "\n";
         }
     }
     return top;
 }
 }
-let a= new TFTheOne('a.txt');
-a.bind(a.read_file).bind(a.filter_chars).bind(a.normalize).bind(a.scan).bind(a.remove_stop_words).bind(a.frequencies).bind(a.sort).bind(a.print_all).printme();
+let a:TFTheOne= new TFTheOne('a.txt');
+a.bind(a.readFile).bind(a.filterChars).bind(a.normalize).bind(a.scan).bind(a.removeStopWords).bind(a.frequencies).bind(a.sort).bind(a.printAll).printme();
