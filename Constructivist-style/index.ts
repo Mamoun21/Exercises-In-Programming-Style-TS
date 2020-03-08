@@ -1,75 +1,75 @@
-const fs = require('fs');
-function extract_word(path_to_file: string) {
-    if (typeof path_to_file != 'string' && !path_to_file) {
+const fileSystem = require('fs');
+function extractWord(pathToFile: string) {
+    if (typeof pathToFile != 'string' && !pathToFile) {
         return [];
     }
-    let str_data;
+    let strData;
     try {
-        str_data = fs.readFileSync(path_to_file, 'utf8');
+        strData = fileSystem.readFileSync(pathToFile, 'utf8');
     }
     catch (err) {
-        console.log(err);
+        throw err;
     }
-    let pattern = str_data;
+    let pattern = strData;
     pattern = pattern.split('[\W_]+').toString().toLowerCase();
-    str_data = pattern.split(' ').join(',').toString().split(/\r?\n/);
-    return str_data;
+    strData = pattern.split(' ').join(',').toString().split(/\r?\n/);
+    return strData;
 }
-function remove_stop_words(word_list) {
-    if (typeof word_list != "object") {
+function removeStopWords(wordList) {
+    if (typeof wordList != "object") {
         return [];
     }
-    let stop_words: string[] = [];
+    let stopWords: string[] = [];
 
     try {
-        let read_file = fs.readFileSync('stop_words.txt', 'utf8');
-        stop_words = read_file.split(',');
+        let read = fileSystem.readFileSync('stop_words.txt', 'utf8');
+        stopWords = read.split(',');
     }
     catch (err) {
-        console.log(err);
+        throw err;
     }
     let newArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
     for (let j = 0; j < newArray.length; j++) {
-        stop_words.push(newArray[j]);
+        stopWords.push(newArray[j]);
     }
     let list = [];
-    for (let w of word_list) {
-        if (!(stop_words.indexOf(w) > -1)) {
+    for (let w of wordList) {
+        if (!(stopWords.indexOf(w) > -1)) {
             list.push(w);
         }
     }
     return list.toString().split(',');
 }
-function frequencies(word_list) {
-    if (typeof word_list != "object" || word_list == []) {
+function frequencies(wordList) {
+    if (typeof wordList != "object" || wordList == []) {
         return {}
     }
-    let word_freqs: object = {};
-    for (let w of word_list) {
-        if (w in word_freqs) {
-            word_freqs[w] += 1;
+    let wordFreqs: object = {};
+    for (let w of wordList) {
+        if (w in wordFreqs) {
+            wordFreqs[w] += 1;
         }
         else {
-            word_freqs[w] = 1;
+            wordFreqs[w] = 1;
         }
     }
-    return word_freqs;
+    return wordFreqs;
 }
-function sort(word_freqs) {
-    if (typeof word_freqs != "object" || word_freqs == {}) {
+function sort(wordFreqs) {
+    if (typeof wordFreqs != "object" || wordFreqs == {}) {
         return [];
     }
-    let sortable = [];
-    for (let key in word_freqs)
-        if (word_freqs.hasOwnProperty(key))
-            sortable.push([key, word_freqs[key]]);
-    sortable.sort(function (a, b) {
+    let sorTable = [];
+    for (let key in wordFreqs)
+        if (wordFreqs.hasOwnProperty(key))
+            sorTable.push([key, wordFreqs[key]]);
+    sorTable.sort(function (a, b) {
         return b[1] - a[1];
     });
-    return sortable;
+    return sorTable;
 }
-let filename = 'a.txt';
-let word_freqs = sort(frequencies(remove_stop_words(extract_word(filename))));
-for (let w in word_freqs) {
-    console.log(word_freqs[w]);
+let fileName = 'a.txt';
+let wordFreqs = sort(frequencies(removeStopWords(extractWord(fileName))));
+for (let w in wordFreqs) {
+    console.log(wordFreqs[w]);
 }
