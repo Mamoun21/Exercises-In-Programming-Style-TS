@@ -1,10 +1,10 @@
-const fs = require('fs');
+const fileSystem = require('fs');
 class DataStorageManager {
     private data: string[];
     constructor() {
         this.data = [];
     }
-    dispatch(message) {
+    disPatch(message) {
         if (message[0] == 'init') {
             return this.init(message[1])
         }
@@ -17,13 +17,13 @@ class DataStorageManager {
 
 
     }
-    init(path_to_file): void {
-        let str_data = fs.readFileSync(path_to_file, 'utf8');
-        let pattern = str_data;
+    init(pathToFile): void {
+        let strData = fileSystem.readFileSync(pathToFile, 'utf8');
+        let pattern = strData;
         pattern = pattern.split('[\W_]+');
-        str_data = pattern.toString().toLowerCase();
-        str_data = str_data.split(' ').join(',');
-        this.data = str_data;
+        strData = pattern.toString().toLowerCase();
+        strData = strData.split(' ').join(',');
+        this.data = strData;
     }
     words(): string[] {
         let w = this.data.toString().split(/\r?\n/);
@@ -32,43 +32,43 @@ class DataStorageManager {
     }
 }
 class StopWordManager {
-    private stop_words: string[];
+    private stopWords: string[];
     constructor() {
-        this.stop_words = [];
+        this.stopWords = [];
     }
-    dispatch(message) {
+    disPatch(message) {
         if (message[0] == 'init') {
             return this.init();
         }
         else if (message[0] == 'is_stop_word') {
-            return this.is_stop_word(message[1]);
+            return this.isStopWord(message[1]);
         }
         else {
             throw ("Message not understood " + message[0]);
         }
     }
     init(): void {
-        let read_file = fs.readFileSync('stop_words.txt', 'utf8');
-        this.stop_words = read_file.split(',')
+        let readFile = fileSystem.readFileSync('stop_words.txt', 'utf8');
+        this.stopWords = readFile.split(',')
         let newArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         for (let j = 0; j < newArray.length; j++) {
-            this.stop_words.push(newArray[j]);
+            this.stopWords.push(newArray[j]);
         }
     }
-    is_stop_word(word): string {
-        if (this.stop_words.indexOf(word) > -1) {
+    isStopWord(word): string {
+        if (this.stopWords.indexOf(word) > -1) {
             return word;
         }
     }
 }
 class WordFrequencyManager {
-    private word_freqs: Object;
+    private wordFreqs: Object;
     constructor() {
-        this.word_freqs = {};
+        this.wordFreqs = {};
     }
-    dispatch(message) {
+    disPatch(message) {
         if (message[0] == 'increment_count') {
-            return this.increment_count(message[1]);
+            return this.incrementCount(message[1]);
         }
         else if (message[0] == 'sorted') {
             return this.sorted();
@@ -77,35 +77,32 @@ class WordFrequencyManager {
             throw ("Message not understood " + message[0]);
         }
     }
-    increment_count(word): void {
-        if (word in this.word_freqs) {
-            this.word_freqs[word] += 1;
+    incrementCount(word): void {
+        if (word in this.wordFreqs) {
+            this.wordFreqs[word] += 1;
         }
         else {
-            this.word_freqs[word] = 1;
+            this.wordFreqs[word] = 1;
         }
     }
     sorted() {
-        let sortable = [];
-        for (let key in this.word_freqs)
-            if (this.word_freqs.hasOwnProperty(key))
-                sortable.push([key, this.word_freqs[key]]);
-        sortable.sort(function (a, b) {
+        let sorTable = [];
+        for (let key in this.wordFreqs)
+            if (this.wordFreqs.hasOwnProperty(key))
+                sorTable.push([key, this.wordFreqs[key]]);
+        sorTable.sort(function (a, b) {
             return b[1] - a[1];
         });
-        this.word_freqs = sortable;
-        return this.word_freqs;
+        this.wordFreqs = sorTable;
+        return this.wordFreqs;
     }
 }
 class WordFrequencyController {
-    private storage_manager;
-    private stop_word_manager;
-    private word_freq_manager;
-    private word_freqs;
-    constructor() {
-
-    }
-    dispatch(message) {
+    private storageManager;
+    private stopWordManager;
+    private wordFreqManager;
+    private wordFreqs;
+    disPatch(message) {
         if (message[0] == 'init') {
             return this.init(message[1]);
         }
@@ -116,26 +113,26 @@ class WordFrequencyController {
             throw ("Message not understood " + message[0]);
         }
     }
-    init(path_to_file): void {
-        this.storage_manager = new DataStorageManager();
-        this.stop_word_manager = new StopWordManager();
-        this.word_freq_manager = new WordFrequencyManager();
-        this.storage_manager.dispatch(['init', path_to_file]);
-        this.stop_word_manager.dispatch(['init']);
+    init(pathToFile): void {
+        this.storageManager = new DataStorageManager();
+        this.stopWordManager = new StopWordManager();
+        this.wordFreqManager = new WordFrequencyManager();
+        this.storageManager.disPatch(['init', pathToFile]);
+        this.stopWordManager.disPatch(['init']);
     }
     run(): void {
-        for (let w of this.storage_manager.dispatch(['words'])) {
-            if (!this.stop_word_manager.dispatch(['is_stop_word', w])) {
-                this.word_freq_manager.dispatch(['increment_count', w]);
+        for (let w of this.storageManager.disPatch(['words'])) {
+            if (!this.stopWordManager.disPatch(['is_stop_word', w])) {
+                this.wordFreqManager.disPatch(['increment_count', w]);
             }
         }
-        this.word_freqs = this.word_freq_manager.dispatch(['sorted']);
-        for (let w in this.word_freqs) {
-            console.log(this.word_freqs[w])
+        this.wordFreqs = this.wordFreqManager.disPatch(['sorted']);
+        for (let w in this.wordFreqs) {
+            console.log(this.wordFreqs[w])
         }
 
     }
 }
-let wfcontroller:WordFrequencyController= new WordFrequencyController();
-wfcontroller.dispatch(['init', 'a.txt']);
-wfcontroller.dispatch(['run'])
+let wordFrequencyController:WordFrequencyController= new WordFrequencyController();
+wordFrequencyController.disPatch(['init', 'a.txt']);
+wordFrequencyController.disPatch(['run'])
